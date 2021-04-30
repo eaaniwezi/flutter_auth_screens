@@ -61,7 +61,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   child: Column(
                     children: <Widget>[
                       SizedBox(height: 20.0),
-                      oldPasswordTextField(),
+                      // oldPasswordTextField(),
                       SizedBox(height: 10.0),
                       passwordTextField(),
                       SizedBox(height: 10.0),
@@ -249,18 +249,23 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   Widget savePasswordButton() {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         setState(() {
           circular = true;
         });
         if (_globalkey.currentState.validate()) {
-          // FirebaseAuth.instance
-          //     .sendPasswordResetEmail(email: _emailController.text)
-          //     .then((value) => print('Check your email'));
-          // FirebaseAuth.instance.confirmPasswordReset(oobCode, newPassword)
+          var message;
+          FirebaseUser user = (await FirebaseAuth.instance.currentUser());
+          user
+              .updatePassword(_passwordController2.text)
+              .then((value) => print("Success"))
+              .catchError((onError) => message = 'error');
+
           SnackBar snackbar =
-              SnackBar(content: Text("A message has been Sent to this mail."));
+              SnackBar(content: Text("Password Has Been Changed Successfully"));
           _scaffoldKey.currentState.showSnackBar(snackbar);
+          _passwordController.text = "";
+          _passwordController2.text = "";
           setState(() {
             circular = false;
           });
