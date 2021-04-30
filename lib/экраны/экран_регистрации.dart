@@ -1,4 +1,6 @@
+import 'package:auth_screens/%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D1%8B/%D1%8D%D0%BA%D1%80%D0%B0%D0%BD_%D0%BD%D0%B0%D1%87%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_colored_progress_indicators/flutter_colored_progress_indicators.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -170,36 +172,59 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   Widget registerButton() {
-    return Container(
-      width: 200,
-      height: 45.0,
-      child: Material(
-        borderRadius: BorderRadius.circular(20.0),
-        shadowColor: Colors.greenAccent,
-        color: Colors.blue,
-        elevation: 7.0,
-        child: GestureDetector(
-          onTap: () {
-            setState(() {
-              circular = true;
-            });
-            if (_globalkey.currentState.validate()) {
-              SnackBar snackbar = SnackBar(content: Text("User Registered"));
-              _scaffoldKey.currentState.showSnackBar(snackbar);
-              setState(() {
-                circular = false;
-              });
-            } else {
-              if (!_globalkey.currentState.validate()) {
-                SnackBar snackbar = SnackBar(
-                    content: Text("User was not Sucessful Registered"));
-                _scaffoldKey.currentState.showSnackBar(snackbar);
-                setState(() {
-                  circular = false;
-                });
-              }
+    return GestureDetector(
+      onTap: () async {
+        setState(() {
+          circular = true;
+        });
+        try {
+          if (_globalkey.currentState.validate()) {
+            FirebaseUser user =
+                (await FirebaseAuth.instance.createUserWithEmailAndPassword(
+              email: _emailController.text,
+              password: _passwordController2.text,
+            ))
+                    .user;
+            if (user != null) {
+              UserUpdateInfo updateUser = UserUpdateInfo();
+              updateUser.displayName = _usernameController.text;
+              user.updateProfile(updateUser);
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                  (route) => false);
             }
-          },
+          } else {
+            setState(() {
+              circular = false;
+            });
+            SnackBar snackbar = SnackBar(content: Text("Invalid Details"));
+            _scaffoldKey.currentState.showSnackBar(snackbar);
+          }
+        } catch (e) {
+          print(e);
+          // _usernameController.text = "";
+          // _passwordController.text = "";
+          // _passwordController2.text = "";
+          // _emailController.text = "";
+          setState(() {
+            circular = false;
+          });
+          SnackBar snackbar =
+              SnackBar(content: Text("COuld not Register., Try again later"));
+          _scaffoldKey.currentState.showSnackBar(snackbar);
+        }
+      },
+      child: Container(
+        width: 200,
+        height: 45.0,
+        child: Material(
+          borderRadius: BorderRadius.circular(20.0),
+          shadowColor: Colors.greenAccent,
+          color: Colors.blue,
+          elevation: 7.0,
           child: Center(
             child: circular
                 ? ColoredCircularProgressIndicator()

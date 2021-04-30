@@ -2,6 +2,12 @@ import 'package:auth_screens/%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D1%8B/%D1%8D%D0%BA%D
 import 'package:auth_screens/%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D1%8B/%D1%8D%D0%BA%D1%80%D0%B0%D0%BD_%D1%80%D0%B5%D0%B3%D0%B8%D1%81%D1%82%D1%80%D0%B0%D1%86%D0%B8%D0%B8.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colored_progress_indicators/flutter_colored_progress_indicators.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+import 'экран_начальный.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'package:flutter_twitter/flutter_twitter.dart';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -23,6 +29,52 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool circular = false;
 
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  void _signInFacebook() async {
+    FacebookLogin facebookLogin = FacebookLogin();
+
+    final result = await facebookLogin.logIn(['email']);
+    final token = result.accessToken.token;
+    final graphResponse = await http.get(
+        'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email&access_token=${token}');
+    print(graphResponse.body);
+    if (result.status == FacebookLoginStatus.loggedIn) {
+      final credential = FacebookAuthProvider.getCredential(accessToken: token);
+      _auth.signInWithCredential(credential);
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(),
+          ),
+          (route) => false);
+    }
+  }
+
+  Future<void> _signInTwitter() async {
+    var twitterLogin = new TwitterLogin(
+      consumerKey: 'azIqko7qrN5E3f6s2xn6WG1sm',
+      consumerSecret: 'sM8O7GFlzZb7hMX7ajg7I0Ti1rkJxZyHnkyqammDzZrJLBIOa6',
+    );
+
+    final TwitterLoginResult result = await twitterLogin.authorize();
+
+    switch (result.status) {
+      case TwitterLoginStatus.loggedIn:
+        var session = result.session;
+        print('successful sign in: ${session.username}');
+//        _sendTokenAndSecretToServer(session.token, session.secret);
+        break;
+      case TwitterLoginStatus.cancelledByUser:
+//        _showCancelMessage();
+        print('cancelled by user');
+        break;
+      case TwitterLoginStatus.error:
+        print(result.errorMessage);
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -36,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: <Widget>[
               header(),
               Container(
-                  padding: EdgeInsets.only(top: 35.0, left: 20.0, right: 20.0),
+                  padding: EdgeInsets.only(top: 5.0, left: 20.0, right: 20.0),
                   child: Form(
                     key: _globalkey,
                     child: Column(
@@ -46,15 +98,105 @@ class _LoginScreenState extends State<LoginScreen> {
                         passwordTextField(),
                         SizedBox(height: 5.0),
                         forgetPassword(),
-                        SizedBox(height: 40.0),
+                        SizedBox(height: 25.0),
                         loginButton(),
                         SizedBox(height: 20.0),
-                        facebookLogin(),
+                        Text(
+                          "OR CONTINUE WITH",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Montserrat',
+                          ),
+                        ),
+                        SizedBox(height: 20.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            facebookLogin(),
+                            // twitterLogin(),
+                          ],
+                        )
                       ],
                     ),
                   )),
               SizedBox(height: 15.0),
               register(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget twitterLogin() {
+    return GestureDetector(
+      onTap: () {
+        _signInTwitter();
+      },
+      child: Container(
+        width: 120,
+        height: 45.0,
+        color: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+              border: Border.all(
+                  color: Colors.black, style: BorderStyle.solid, width: 1.0),
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(20.0)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Center(
+                child: ImageIcon(AssetImage('images/image/twitter.png')),
+              ),
+              SizedBox(width: 10.0),
+              Center(
+                child: Text(
+                  'Twitter',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Montserrat',
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget facebookLogin() {
+    return GestureDetector(
+      onTap: () {
+        _signInFacebook();
+      },
+      child: Container(
+        width: 120,
+        height: 45.0,
+        color: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+              border: Border.all(
+                  color: Colors.black, style: BorderStyle.solid, width: 1.0),
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(20.0)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Center(
+                child: ImageIcon(AssetImage('images/image/facebook.png')),
+              ),
+              SizedBox(width: 10.0),
+              Center(
+                child: Text(
+                  'Facebook',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Montserrat',
+                  ),
+                ),
+              )
             ],
           ),
         ),
@@ -93,38 +235,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget facebookLogin() {
-    return GestureDetector(
-      onTap: () => print("Still Working on it"),
-      child: Container(
-        width: 200,
-        height: 45.0,
-        color: Colors.transparent,
-        child: Container(
-          decoration: BoxDecoration(
-              border: Border.all(
-                  color: Colors.black, style: BorderStyle.solid, width: 1.0),
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(20.0)),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Center(
-                child: ImageIcon(AssetImage('images/image/facebook.png')),
-              ),
-              SizedBox(width: 10.0),
-              Center(
-                child: Text('Log in with facebook',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, fontFamily: 'Montserrat')),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget loginButton() {
     return Container(
       width: 200,
@@ -135,26 +245,46 @@ class _LoginScreenState extends State<LoginScreen> {
         color: Colors.blue,
         elevation: 7.0,
         child: GestureDetector(
-          onTap: () {
+          onTap: () async {
             setState(() {
               circular = true;
             });
-            if (_globalkey.currentState.validate()) {
-              SnackBar snackbar =
-                  SnackBar(content: Text("Login was Sucessful"));
-              _scaffoldKey.currentState.showSnackBar(snackbar);
-              setState(() {
-                circular = false;
-              });
-            } else {
-              if (!_globalkey.currentState.validate()) {
-                SnackBar snackbar =
-                    SnackBar(content: Text("Login was not Sucessful"));
-                _scaffoldKey.currentState.showSnackBar(snackbar);
+            try {
+              if (_globalkey.currentState.validate()) {
+                FirebaseUser user =
+                    (await FirebaseAuth.instance.signInWithEmailAndPassword(
+                  email: _emailController.text,
+                  password: _passwordController.text,
+                ))
+                        .user;
+                if (user != null) {
+                  // SharedPreferences prefs =
+                  //     await SharedPreferences.getInstance();
+                  // prefs.setString('displayName', user.displayName);
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomeScreen(),
+                      ),
+                      (route) => false);
+                }
+              } else {
                 setState(() {
                   circular = false;
                 });
+                SnackBar snackbar =
+                    SnackBar(content: Text("Invalid Login Details"));
+                _scaffoldKey.currentState.showSnackBar(snackbar);
               }
+            } catch (e) {
+              print(e);
+              // _emailController.text = "";
+              // _passwordController.text = "";
+              setState(() {
+                circular = false;
+              });
+              SnackBar snackbar = SnackBar(content: Text("Can't login"));
+              _scaffoldKey.currentState.showSnackBar(snackbar);
             }
           },
           child: Center(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_colored_progress_indicators/flutter_colored_progress_indicators.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -9,29 +10,11 @@ class ForgotPassword extends StatefulWidget {
 }
 
 class _ForgotPasswordState extends State<ForgotPassword> {
-  bool _showPassword = false;
-  bool _showPassword2 = false;
-  void _togglevisibility() {
-    setState(() {
-      _showPassword = !_showPassword;
-    });
-  }
-
-  void _togglevisibility2() {
-    setState(() {
-      _showPassword2 = !_showPassword2;
-    });
-  }
-
   bool circular = false;
-
-  var confirmPass;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _globalkey = GlobalKey<FormState>();
   TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController1 = TextEditingController();
-  TextEditingController _passwordController2 = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -45,18 +28,16 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             children: <Widget>[
               header(),
               Container(
-                padding: EdgeInsets.only(top: 35.0, left: 20.0, right: 20.0),
+                padding: EdgeInsets.only(top: 3.0, left: 20.0, right: 20.0),
                 child: Form(
                   key: _globalkey,
                   child: Column(
                     children: <Widget>[
+                      info(),
+                      SizedBox(height: 20.0),
                       emailTextField(),
-                      SizedBox(height: 20.0),
-                      passwordTextField(),
-                      SizedBox(height: 20.0),
-                      confirmPasswordTextField(),
-                      SizedBox(height: 20.0),
-                      loginButton(),
+                      SizedBox(height: 30.0),
+                      resetButton(),
                       SizedBox(height: 20.0),
                       backButton(),
                     ],
@@ -99,7 +80,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     );
   }
 
-  Widget loginButton() {
+  Widget resetButton() {
     return Container(
       width: 200,
       height: 45.0,
@@ -114,115 +95,33 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               circular = true;
             });
             if (_globalkey.currentState.validate()) {
-              SnackBar snackbar = SnackBar(content: Text("Password Changed"));
+              FirebaseAuth.instance
+                  .sendPasswordResetEmail(email: _emailController.text)
+                  .then((value) => print('Check your email'));
+              SnackBar snackbar = SnackBar(
+                  content: Text("A message has been Sent to this mail."));
               _scaffoldKey.currentState.showSnackBar(snackbar);
               setState(() {
                 circular = false;
               });
             } else {
-              SnackBar snackbar =
-                  SnackBar(content: Text("Issue with changing password"));
-              _scaffoldKey.currentState.showSnackBar(snackbar);
               setState(() {
                 circular = false;
               });
+              SnackBar snackbar = SnackBar(content: Text("Invalid Email"));
+              _scaffoldKey.currentState.showSnackBar(snackbar);
             }
           },
           child: Center(
             child: circular
                 ? ColoredCircularProgressIndicator()
                 : Text(
-                    'SAVE NEW PASSWORD',
+                    'RESET YOUR PASSWORD',
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Montserrat'),
                   ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget passwordTextField() {
-    return TextFormField(
-      validator: (String value) {
-        confirmPass = value;
-        if (value.isEmpty) {
-          return "Please Enter New Password";
-        } else if (value.length < 8) {
-          return "Password must be atleast 8 characters long";
-        } else {
-          return null;
-        }
-      },
-      controller: _passwordController1,
-      obscureText: !_showPassword,
-      decoration: InputDecoration(
-        prefixIcon: Icon(
-          Icons.lock,
-          color: Colors.black,
-        ),
-        suffixIcon: GestureDetector(
-          onTap: () {
-            _togglevisibility();
-          },
-          child: Icon(
-            _showPassword ? Icons.visibility : Icons.visibility_off,
-            color: Colors.black,
-          ),
-        ),
-        labelText: 'NEW PASSWORD',
-        labelStyle: TextStyle(
-            fontFamily: 'Montserrat',
-            fontWeight: FontWeight.bold,
-            color: Colors.grey),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: Colors.blue,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget confirmPasswordTextField() {
-    return TextFormField(
-      validator: (String value) {
-        if (value.isEmpty) {
-          return "Please Re-Enter New Password";
-        } else if (value.length < 8) {
-          return "Password must be atleast 8 characters long";
-        } else if (value != confirmPass) {
-          return "Password must be same as above";
-        } else {
-          return null;
-        }
-      },
-      controller: _passwordController2,
-      obscureText: !_showPassword2,
-      decoration: InputDecoration(
-        prefixIcon: Icon(
-          Icons.lock,
-          color: Colors.black,
-        ),
-        suffixIcon: GestureDetector(
-          onTap: () {
-            _togglevisibility2();
-          },
-          child: Icon(
-            _showPassword2 ? Icons.visibility : Icons.visibility_off,
-            color: Colors.black,
-          ),
-        ),
-        labelText: 'Confirm Password',
-        labelStyle: TextStyle(
-            fontFamily: 'Montserrat',
-            fontWeight: FontWeight.bold,
-            color: Colors.grey),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: Colors.blue,
           ),
         ),
       ),
@@ -250,7 +149,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           Icons.mail_outline_rounded,
           color: Colors.black,
         ),
-        labelText: 'EMAIL',
+        labelText: 'Email',
         labelStyle: TextStyle(
             fontFamily: 'Montserrat',
             fontWeight: FontWeight.bold,
@@ -258,6 +157,22 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(
             color: Colors.blue,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget info() {
+    return Container(
+      child: Center(
+        child: Text(
+          "Please Put In the Email You Used While Creating the Account",
+          style: TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.w300,
+            color: Colors.black54,
+            wordSpacing: 4,
           ),
         ),
       ),
