@@ -53,8 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _signInTwitter() async {
     var twitterLogin = new TwitterLogin(
-      consumerKey: 'azIqko7qrN5E3f6s2xn6WG1sm',
-      consumerSecret: 'sM8O7GFlzZb7hMX7ajg7I0Ti1rkJxZyHnkyqammDzZrJLBIOa6',
+      consumerKey: '',
+      consumerSecret: '',
     );
 
     final TwitterLoginResult result = await twitterLogin.authorize();
