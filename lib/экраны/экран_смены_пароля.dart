@@ -15,7 +15,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   var confirmPass;
 
   bool _showPassword = false;
-  bool _showOldPassword = false;
+  // bool _showOldPassword = false;
   bool _showPassword2 = false;
 
   void _togglevisibility() {
@@ -24,11 +24,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     });
   }
 
-  void _togglevisibilityOldPassword() {
-    setState(() {
-      _showOldPassword = !_showOldPassword;
-    });
-  }
+  // void _togglevisibilityOldPassword() {
+  //   setState(() {
+  //     _showOldPassword = !_showOldPassword;
+  //   });
+  // }
 
   void _togglevisibility2() {
     setState(() {
@@ -38,7 +38,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _globalkey = GlobalKey<FormState>();
-  TextEditingController _oldPasswordController = TextEditingController();
+  // TextEditingController _oldPasswordController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _passwordController2 = TextEditingController();
 
@@ -123,46 +123,46 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     );
   }
 
-  Widget oldPasswordTextField() {
-    return TextFormField(
-      controller: _oldPasswordController,
-      obscureText: !_showOldPassword,
-      validator: (String value) {
-        if (value.isEmpty) {
-          return "Please Enter Your Current Password";
-        } else if (value.length < 8) {
-          return "Password must be atleast 8 characters long";
-        } else {
-          return null;
-        }
-      },
-      decoration: InputDecoration(
-        prefixIcon: Icon(
-          Icons.lock,
-          color: Colors.black,
-        ),
-        suffixIcon: GestureDetector(
-          onTap: () {
-            _togglevisibilityOldPassword();
-          },
-          child: Icon(
-            _showOldPassword ? Icons.visibility : Icons.visibility_off,
-            color: Colors.black,
-          ),
-        ),
-        labelText: 'Current Password',
-        labelStyle: TextStyle(
-            fontFamily: 'Montserrat',
-            fontWeight: FontWeight.bold,
-            color: Colors.grey),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: Colors.blue,
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget oldPasswordTextField() {
+  //   return TextFormField(
+  //     controller: _oldPasswordController,
+  //     obscureText: !_showOldPassword,
+  //     validator: (String value) {
+  //       if (value.isEmpty) {
+  //         return "Please Enter Your Current Password";
+  //       } else if (value.length < 8) {
+  //         return "Password must be atleast 8 characters long";
+  //       } else {
+  //         return null;
+  //       }
+  //     },
+  //     decoration: InputDecoration(
+  //       prefixIcon: Icon(
+  //         Icons.lock,
+  //         color: Colors.black,
+  //       ),
+  //       suffixIcon: GestureDetector(
+  //         onTap: () {
+  //           _togglevisibilityOldPassword();
+  //         },
+  //         child: Icon(
+  //           _showOldPassword ? Icons.visibility : Icons.visibility_off,
+  //           color: Colors.black,
+  //         ),
+  //       ),
+  //       labelText: 'Current Password',
+  //       labelStyle: TextStyle(
+  //           fontFamily: 'Montserrat',
+  //           fontWeight: FontWeight.bold,
+  //           color: Colors.grey),
+  //       focusedBorder: UnderlineInputBorder(
+  //         borderSide: BorderSide(
+  //           color: Colors.blue,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget confirmPasswordTextField() {
     return TextFormField(
