@@ -81,37 +81,37 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   }
 
   Widget resetButton() {
-    return Container(
-      width: 200,
-      height: 45.0,
-      child: Material(
-        borderRadius: BorderRadius.circular(20.0),
-        shadowColor: Colors.greenAccent,
-        color: Colors.blue,
-        elevation: 7.0,
-        child: GestureDetector(
-          onTap: () {
-            setState(() {
-              circular = true;
-            });
-            if (_globalkey.currentState.validate()) {
-              FirebaseAuth.instance
-                  .sendPasswordResetEmail(email: _emailController.text)
-                  .then((value) => print('Check your email'));
-              SnackBar snackbar = SnackBar(
-                  content: Text("A message has been Sent to this mail."));
-              _scaffoldKey.currentState.showSnackBar(snackbar);
-              setState(() {
-                circular = false;
-              });
-            } else {
-              setState(() {
-                circular = false;
-              });
-              SnackBar snackbar = SnackBar(content: Text("Invalid Email"));
-              _scaffoldKey.currentState.showSnackBar(snackbar);
-            }
-          },
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          circular = true;
+        });
+        if (_globalkey.currentState.validate()) {
+          FirebaseAuth.instance
+              .sendPasswordResetEmail(email: _emailController.text)
+              .then((value) => print('Check your email'));
+          SnackBar snackbar =
+              SnackBar(content: Text("A message has been Sent to this mail."));
+          _scaffoldKey.currentState.showSnackBar(snackbar);
+          setState(() {
+            circular = false;
+          });
+        } else {
+          setState(() {
+            circular = false;
+          });
+          SnackBar snackbar = SnackBar(content: Text("Invalid Email"));
+          _scaffoldKey.currentState.showSnackBar(snackbar);
+        }
+      },
+      child: Container(
+        width: 200,
+        height: 45.0,
+        child: Material(
+          borderRadius: BorderRadius.circular(20.0),
+          shadowColor: Colors.greenAccent,
+          color: Colors.blue,
+          elevation: 7.0,
           child: Center(
             child: circular
                 ? ColoredCircularProgressIndicator()

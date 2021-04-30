@@ -236,57 +236,57 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget loginButton() {
-    return Container(
-      width: 200,
-      height: 45.0,
-      child: Material(
-        borderRadius: BorderRadius.circular(20.0),
-        shadowColor: Colors.greenAccent,
-        color: Colors.blue,
-        elevation: 7.0,
-        child: GestureDetector(
-          onTap: () async {
-            setState(() {
-              circular = true;
-            });
-            try {
-              if (_globalkey.currentState.validate()) {
-                FirebaseUser user =
-                    (await FirebaseAuth.instance.signInWithEmailAndPassword(
-                  email: _emailController.text,
-                  password: _passwordController.text,
-                ))
-                        .user;
-                if (user != null) {
-                  // SharedPreferences prefs =
-                  //     await SharedPreferences.getInstance();
-                  // prefs.setString('displayName', user.displayName);
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomeScreen(),
-                      ),
-                      (route) => false);
-                }
-              } else {
-                setState(() {
-                  circular = false;
-                });
-                SnackBar snackbar =
-                    SnackBar(content: Text("Invalid Login Details"));
-                _scaffoldKey.currentState.showSnackBar(snackbar);
-              }
-            } catch (e) {
-              print(e);
-              // _emailController.text = "";
-              // _passwordController.text = "";
-              setState(() {
-                circular = false;
-              });
-              SnackBar snackbar = SnackBar(content: Text("Can't login"));
-              _scaffoldKey.currentState.showSnackBar(snackbar);
+    return GestureDetector(
+      onTap: () async {
+        setState(() {
+          circular = true;
+        });
+        try {
+          if (_globalkey.currentState.validate()) {
+            FirebaseUser user =
+                (await FirebaseAuth.instance.signInWithEmailAndPassword(
+              email: _emailController.text,
+              password: _passwordController.text,
+            ))
+                    .user;
+            if (user != null) {
+              // SharedPreferences prefs =
+              //     await SharedPreferences.getInstance();
+              // prefs.setString('displayName', user.displayName);
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                  (route) => false);
             }
-          },
+          } else {
+            setState(() {
+              circular = false;
+            });
+            SnackBar snackbar =
+                SnackBar(content: Text("Invalid Login Details"));
+            _scaffoldKey.currentState.showSnackBar(snackbar);
+          }
+        } catch (e) {
+          print(e);
+          // _emailController.text = "";
+          // _passwordController.text = "";
+          setState(() {
+            circular = false;
+          });
+          SnackBar snackbar = SnackBar(content: Text("Can't login"));
+          _scaffoldKey.currentState.showSnackBar(snackbar);
+        }
+      },
+      child: Container(
+        width: 200,
+        height: 45.0,
+        child: Material(
+          borderRadius: BorderRadius.circular(20.0),
+          shadowColor: Colors.greenAccent,
+          color: Colors.blue,
+          elevation: 7.0,
           child: Center(
             child: circular
                 ? ColoredCircularProgressIndicator()
